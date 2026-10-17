@@ -1,37 +1,47 @@
-# Loupedeck Plugin for GIMP
+# GIMP Controls for Loupedeck (unofficial)
 
-Plugin for the Logi Actions SDK (Loupedeck software 6.4+ / Logi Options+) to control GIMP 3 with the Loupedeck Live.
+Plugin for the Logi Actions SDK (Loupedeck software / Logi Options+) to control GIMP 3 with the Loupedeck Live:
+brush and color values on dials that show GIMP's real value, plus GIMP's shortcuts on buttons.
 
-> Disclaimer: This plugin was generated with AI
+> This is an unofficial community plugin, not affiliated with or endorsed by the GIMP project or Logitech.
+> It was generated with AI.
 
 ## Installation
 
-**Requires:** Loupedeck Live (or another Loupedeck / MX Creative device) · Loupedeck software ≥ 6.4.1 or Logi Options+ ·
+**Requires:** Loupedeck Live (or another Loupedeck / MX Creative device) · Loupedeck software ≥ 6.3 or Logi Options+ ·
 GIMP ≥ 3.0 with Python (macOS: included; Windows: keep the installer's "Python" option on) · macOS or Windows 11
 
 ### 1. Loupedeck plugin
 
-1. Double-click `Gimp_<version>.lplug4` (GitHub *Releases*).
+1. Double-click `Gimp_<version>.lplug4` (GitHub *Releases*). On first install the Loupedeck Live gets a starter GIMP
+   profile (brush size, opacity, hardness); add more actions in the Loupedeck software.
 2. **macOS only:** System Settings → Privacy & Security → *Accessibility* → enable **LogiPluginService** (needed for the shortcut buttons).
 
-### 2. GIMP extension (separate step, once per GIMP version)
+### 2. GIMP plug-in (separate step, once per GIMP version)
 
-The value dials need the small bridge plug-in, packed as GIMP extension `io.github.nick11.loupedeck-bridge.gex`
-(GitHub *Releases*). It only adds this extension; GIMP's settings and shortcuts stay untouched.
+The value dials need the small bridge plug-in `loupedeck-bridge.zip` (GitHub *Releases*). It is a regular GIMP plug-in,
+installed the way the [GIMP manual](https://docs.gimp.org/3.2/en/gimp-scripting.html) describes; GIMP's settings and
+shortcuts stay untouched.
 
-1. In GIMP: *File → Open…* and choose the `.gex` file (or drag it onto the GIMP window). GIMP installs it.
-2. Restart GIMP. The first start takes a little longer (GIMP registers the plug-in).
-3. Check: *Edit → Manage Extensions* lists "Loupedeck Bridge", and a value dial (e.g. *GIMP Value → Brush: Size*)
-   shows GIMP's value instead of "–".
+1. Unzip `loupedeck-bridge.zip`. You get a folder `loupedeck-bridge` with `loupedeck-bridge.py` inside.
+2. Open GIMP's plug-in folder for your user (shown in GIMP under *Edit → Preferences → Folders → Plug-ins*;
+   replace `3.2` with your GIMP version):
+   - **Windows:** paste `%APPDATA%\GIMP\3.2\plug-ins` into the Explorer address bar.
+   - **macOS:** Finder → *Go → Go to Folder…* (⇧⌘G) → `~/Library/Application Support/GIMP/3.2/plug-ins`.
+
+   If the `plug-ins` folder doesn't exist yet, start and quit GIMP once, or create it.
+3. Copy the folder `loupedeck-bridge` into it, so you have `plug-ins/loupedeck-bridge/loupedeck-bridge.py`.
+4. Restart GIMP. A value dial (e.g. *GIMP Value → Brush: Size*) now shows GIMP's value instead of "–".
 
 ### Troubleshooting
 
-- **Dials show "–":** GIMP isn't running, the extension isn't installed for this GIMP version, or GIMP wasn't restarted.
+- **Dials show "–":** GIMP isn't running, the plug-in folder is missing, not in the folder of this GIMP version or not named
+  `loupedeck-bridge`, or GIMP wasn't restarted. On Windows, GIMP must be installed with Python (installer default).
 - **Buttons not reacting:** GIMP must be in front with the canvas focused: click into the image once. Don't hold Shift/Ctrl/Alt/Cmd while pressing.
-- **New GIMP version (e.g. 3.2 → 3.4):** repeat step 2 in the new version.
-- **Update:** install the newer `.lplug4`; if the release notes say the GIMP extension changed, remove it in
-  *Edit → Manage Extensions*, restart GIMP and repeat step 2.
-- **Uninstall:** Loupedeck software → plugin list → *Uninstall*; GIMP → *Edit → Manage Extensions* → remove "Loupedeck Bridge".
+- **New GIMP version (e.g. 3.2 → 3.4):** repeat step 2 for the new version's folder.
+- **Update:** install the newer `.lplug4`; if the release notes say the GIMP plug-in changed, replace the folder (step 2)
+  and restart GIMP.
+- **Uninstall:** Loupedeck software → plugin list → *Uninstall*; delete the folder `plug-ins/loupedeck-bridge`.
 
 ## Actions
 
@@ -39,12 +49,12 @@ The value dials need the small bridge plug-in, packed as GIMP extension `io.gith
   - Brush: Size (±5 % per tick), Opacity, Hardness, Angle, Aspect Ratio, Spacing, Force
   - Colors: Foreground Hue, Saturation, Value
 - **GIMP Value Step**: the same as +/−/reset buttons for devices without dials
-- **GIMP Dial** (GIMP default shortcuts): Zoom (press = fit), Select Layer (press = top), Undo / Redo
+- **GIMP Shortcut Dial** (GIMP default shortcuts): Zoom (press = fit), Select Layer (press = top), Undo / Redo
 - **GIMP Shortcut**: tools, selection, colors, undo/redo, cut/copy/paste, layers, zoom, save/export
 
 ## How it works
 
-- **Values** go through a small GIMP 3 Python plug-in (`gimp-plugin/loupedeck-bridge`, installed as extension in step 2).
+- **Values** go through a small GIMP 3 Python plug-in (`gimp-plugin/loupedeck-bridge`, installed in step 2).
   GIMP starts it in the background like its own Script-Fu extension; it listens on `127.0.0.1:47862` and sets the
   values with GIMP's plug-in API, so the tool options update and the dial can show the real value.
 - **Security:** on every start the GIMP plug-in writes a random token to a file only your user can read
@@ -63,10 +73,16 @@ Needs the .NET 8 SDK and the LogiPluginTool dotnet tool (provides the net8 `Plug
 dotnet tool install --global LogiPluginTool --version 6.1.4.22672
 dotnet build src                     # Debug: registers bin/Debug via a .link file for the Logi Plugin Service
 dotnet build src -c Release
-logiplugintool pack bin/Release Gimp_0_1.lplug4
+logiplugintool pack bin/Release Gimp_<version>.lplug4
 ```
 
-The build also packs the GIMP extension to `bin/<Configuration>/gimp-plugin/io.github.nick11.loupedeck-bridge.gex`.
+- The build also zips the GIMP plug-in to `bin/loupedeck-bridge.zip`. A release contains both files.
+- Build releases on macOS or Linux (the zip must keep the script's executable bit) from a clean tree (`rm -rf bin src/obj`).
+- `-p:PluginApiDir=<folder>` overrides where `PluginApi.dll` is taken from.
+- Development: reload with `open loupedeck:plugin/Gimp/reload` (Windows: `start …`); the log is
+  `Logs/plugin_logs/Gimp.log` in the Logi Plugin Service data folder.
+- `src/package/profiles/DefaultProfile30.lp5` is the starter profile for the Loupedeck Live: build it in the Loupedeck
+  software and export it, don't edit it by hand. `assets/PluginIcon.svg` is the source of `metadata/Icon256x256.png`.
 
 ## License
 
