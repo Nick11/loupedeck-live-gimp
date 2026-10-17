@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Plugin icon: a dial ring with a paintbrush. Artwork stays inside the centred 192×192 area. -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#26262B"/>
+  <circle cx="128" cy="128" r="62" fill="none" stroke="#3F3F46" stroke-width="12"/>
+  <path d="M84.2 171.8A62 62 0 1 1 171.8 171.8" fill="none" stroke="#E8A33D" stroke-width="12" stroke-linecap="round"/>
+  <g transform="rotate(45 128 128)">
+    <rect x="120" y="70" width="16" height="58" rx="6" fill="#E0E0E0"/>
+    <rect x="118" y="126" width="20" height="12" rx="2" fill="#9A9AA3"/>
+    <path d="M118 138h20c0 18-4 32-10 44-6-12-10-26-10-44z" fill="#E8A33D"/>
+  </g>
+</svg>

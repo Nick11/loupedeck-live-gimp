@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <RootNamespace>Loupedeck.GimpPlugin</RootNamespace>
+    <AssemblyName>GimpPlugin</AssemblyName>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Deterministic>true</Deterministic>
+    <PathMap>$(MSBuildProjectDirectory)=/_/</PathMap>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+
+    <!-- Must equal `name` in package/metadata/LoupedeckPackage.yaml. -->
+    <PluginName>Gimp</PluginName>
+
+    <!-- Package layout expected by the Logi Plugin Service: <root>/bin/GimpPlugin.dll + <root>/metadata/. -->
+    <PackageRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../bin/$(Configuration)/'))</PackageRoot>
+    <OutputPath>$(PackageRoot)bin/</OutputPath>
+
+    <!-- Compile against the net8 PluginApi.dll from the LogiPluginTool dotnet tool (override with -p:PluginApiDir=…). -->
+    <LogiPluginToolVersion>6.1.4.22672</LogiPluginToolVersion>
+    <UserHome Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(USERPROFILE)</UserHome>
+    <UserHome Condition="!$([MSBuild]::IsOSPlatform('Windows'))">$(HOME)</UserHome>
+    <PluginApiDir Condition="'$(PluginApiDir)' == ''">$(UserHome)/.dotnet/tools/.store/logiplugintool/$(LogiPluginToolVersion)/logiplugintool/$(LogiPluginToolVersion)/tools/net8.0/any/</PluginApiDir>
+
+    <LogiPluginsDir Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(LOCALAPPDATA)/Logi/LogiPluginService/Plugins/</LogiPluginsDir>
+    <LogiPluginsDir Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(UserHome)/Library/Application Support/Logi/LogiPluginService/Plugins/</LogiPluginsDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="PluginApi" HintPath="$(PluginApiDir)PluginApi.dll" Private="false" />
+    <EmbeddedResource Include="../icons/gimp/*.svg" LogicalName="icons.gimp.%(Filename).svg" />
+    <PackageMetadata Include="package/metadata/LoupedeckPackage.yaml;package/metadata/Icon256x256.png" />
+    <PackageProfiles Include="package/profiles/DefaultProfile30.lp5" />
+    <PackageContent Include="../LICENSE;../THIRD_PARTY_NOTICES.md" />
+    <GimpPlugInFile Include="../gimp-plugin/loupedeck-bridge/loupedeck-bridge.py" />
+  </ItemGroup>
+
+  <Target Name="CopyPackageContent" AfterTargets="Build">
+    <Copy SourceFiles="@(PackageMetadata)" DestinationFolder="$(PackageRoot)metadata/" />
+    <!-- Applied by the Loupedeck software on first install only (30 = Loupedeck Live); build it in the UI and export, don't hand-edit. -->
+    <Copy SourceFiles="@(PackageProfiles)" DestinationFolder="$(PackageRoot)profiles/" />
+    <Copy SourceFiles="@(PackageContent)" DestinationFolder="$(PackageRoot)" />
+  </Target>
+
+  <!-- The GIMP plug-in as zip with the folder loupedeck-bridge/ (users copy it into GIMP's plug-ins folder, see README), next to the
+       package root so it isn't packed into the .lplug4. Copy keeps the script's executable bit, which GIMP needs on macOS:
+       build releases on macOS/Linux. -->
+  <Target Name="PackGimpPlugIn" AfterTargets="CopyPackageContent">
+    <PropertyGroup>
+      <GimpPlugInStage>$(ProjectDir)$(IntermediateOutputPath)gimp-plugin/</GimpPlugInStage>
+    </PropertyGroup>
+    <RemoveDir Directories="$(GimpPlugInStage)" />
+    <Copy SourceFiles="@(GimpPlugInFile)" DestinationFolder="$(GimpPlugInStage)loupedeck-bridge/" />
+    <ZipDirectory SourceDirectory="$(GimpPlugInStage)" DestinationFile="$(PackageRoot)../loupedeck-bridge.zip" Overwrite="true" />
+  </Target>
+
+  <!-- Dev install (Debug only): the service loads the plugin straight from bin/ via <AssemblyName>.link. -->
+  <Target Name="RegisterDevPlugin" AfterTargets="PackGimpPlugIn" Condition="'$(Configuration)' == 'Debug' And '$(LogiPluginsDir)' != ''">
+    <MakeDir Directories="$(LogiPluginsDir)" />
+    <WriteLinesToFile File="$(LogiPluginsDir)$(AssemblyName).link" Lines="$(PackageRoot)" Overwrite="true" />
+    <Message Importance="high" Text="Registered $(PluginName) for the Logi Plugin Service. Reload: loupedeck:plugin/$(PluginName)/reload" />
+  </Target>
+
+</Project>

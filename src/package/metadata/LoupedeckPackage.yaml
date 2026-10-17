@@ -1,0 +1,27 @@
+type: plugin4
+name: Gimp
+displayName: GIMP Controls (unofficial)
+description: Control GIMP 3 brush and color values, view, layers and tools with the Loupedeck Live. Unofficial, not affiliated with the GIMP project.
+pluginFileName: GimpPlugin.dll
+version: 0.1
+author: nsc
+copyright: Copyright © 2026 nsc
+
+pluginFolderWin: bin
+pluginFolderMac: bin
+
+supportedDevices:
+    - LoupedeckCtFamily
+    - LoupedeckPlusFamily
+    - LogitechCreativeFamily
+
+pluginCapabilities:
+    - HasApplication
+    - ActivatesApplication
+
+minimumLoupedeckVersion: 6.3
+
+license: MIT
+licenseUrl: https://opensource.org/licenses/MIT
+supportPageUrl: https://github.com/Nick11/loupedeck-live-gimp/issues
+homePageUrl: https://github.com/Nick11/loupedeck-live-gimp
