@@ -37,6 +37,9 @@ shortcuts stay untouched.
 
 - **Dials show "–":** GIMP isn't running, the plug-in folder is missing, not in the folder of this GIMP version or not named
   `loupedeck-bridge`, or GIMP wasn't restarted. On Windows, GIMP must be installed with Python (installer default).
+- **Dials show "–" on Windows with a firewall tool** (e.g. Windows Firewall Control) that blocks programs by default:
+  allow GIMP's Python (`python.exe` in GIMP's installation folder). It only needs the local connection on
+  `127.0.0.1:47862`, no internet access. Then restart GIMP and the Loupedeck software.
 - **Buttons not reacting:** GIMP must be in front with the canvas focused: click into the image once. Don't hold Shift/Ctrl/Alt/Cmd while pressing.
 - **New GIMP version (e.g. 3.2 → 3.4):** GIMP uses a new settings folder per version; repeat step 2 there.
 - **Update:** install the newer `.lplug4`; if the release notes say the GIMP plug-in changed, replace the folder (step 2)
