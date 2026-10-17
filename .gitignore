@@ -1,0 +1,21 @@
+# Build output
+bin/
+obj/
+*.lplug4
+*.gex
+
+# IDE and OS
+.vs/
+.vscode/
+.idea/
+*.user
+.DS_Store
+__pycache__/
+
+# Leftovers of tools run with HOME inside the repository
+Library/
+.local/
+
+# Local Claude Code files
+.claude/
+CLAUDE.md
